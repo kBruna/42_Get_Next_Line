@@ -6,21 +6,25 @@
 /*   By: buehara <buehara@student.42sp.org.br>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 11:38:49 by buehara           #+#    #+#             */
-/*   Updated: 2025/08/12 16:04:21 by buehara          ###   ########.fr       */
+/*   Updated: 2025/08/13 15:51:37 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-# define <stdlib.h>
 
-# define BUFFER_SIZE 1024
+# include <stdlib.h>
+# include <unistd.h>
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
+# endif
 
 typedef struct	s_link
 {
 	char	*content;
-	s_link	*prev;
-	s_link	*next;
+	struct	s_link	*prev;
+	struct	s_link	*next;
 }				t_link;
 
 #endif
