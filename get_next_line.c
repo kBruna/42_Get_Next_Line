@@ -6,13 +6,15 @@
 /*   By: buehara <buehara@student.42sp.org.br>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:13:19 by buehara           #+#    #+#             */
-/*   Updated: 2025/08/15 17:17:11 by buehara          ###   ########.fr       */
+/*   Updated: 2025/08/15 20:35:37 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
 #include <stdio.h>
+
+void    *ft_get_lstfill(t_link *head, int fd, unsigned int *read_size);
 
 t_link	*ft_get_lstnew(t_link **head, t_link *prev)
 {
@@ -51,7 +53,7 @@ void	ft_get_free(t_link *head)
 		head = temp;
 	}
 }
-		
+
 void	*ft_get_lstfill(t_link *head, int fd, unsigned int *read_size)
 {
 	t_link	*prev;
@@ -78,7 +80,6 @@ void	*ft_get_lstfill(t_link *head, int fd, unsigned int *read_size)
 
 int	ft_get_enter(t_link *list)
 {
-//	char 	*str;
 	int		size;
 	char	*p;
 	int		ctrl;
@@ -120,16 +121,43 @@ int	ft_get_enter(t_link *list)
 	return (str);*/
 }
 
-char	*ft_get_str(t_link *list, int size)
+char	*ft_get_fillstr(t_link *list, int size, char *str)
 {
 	char	*p;
-	char	*str_return;
 	int		ctrl;
+	int		index;
 
-	str_return = (char *)malloc(sizeof(char *) * size + 1);
+	p = list->content;
+	ctrl = 0;
+	index = 0;
+	while (p && size > 0)
+	{
+		str[index] = p[ctrl];
+		ctrl++;
+		index++;
+		size--;
+		if (p[ctrl] == '\0')
+		{
+			list = list->next;
+			ft_get_free(list->prev);
+			p = list->content;
+			ctrl = 0;
+		}
+	}
+	str[ctrl] = '\0';
+	return (str);
+}
+	
+char	*ft_get_str(t_link *list, int size)
+{
+	char	*str_return;
+//	int		ctrl;
+
+	str_return = malloc(sizeof(char *) * size + 1);
 	if (!str_return)
 		return (NULL);
-	p = list->content;
+	str_return = ft_get_fillstr(list, size, str_return);
+/*	p = list->content;
 	ctrl = 0;
 	while (p && size > 0)
 	{
@@ -145,12 +173,10 @@ char	*ft_get_str(t_link *list, int size)
 			ctrl = 0;
 		}
 	}
-	str_return[ctrl] = '\0';
+	*str_return = '\0';*/
 	return (str_return);
 }
 	
-	
-
 char	*get_next_line(int fd)
 {
 	static t_link	*buffer;
@@ -160,11 +186,15 @@ char	*get_next_line(int fd)
 
 	buffer = NULL;
 	read_size = 0;
-	buffer = ft_get_lstfill(buffer, fd, &read_size);
 	if (!buffer)
-		return (NULL);
+	{
+		buffer = ft_get_lstfill(buffer, fd, &read_size);
+		if (!buffer)
+			return (NULL);
+	}
 	len = ft_get_enter(buffer);
 	str_return = ft_get_str(buffer, len);
+	//free(buffer);
 	return (str_return);
 //	return (buffer->content);
 }
@@ -201,6 +231,6 @@ int	main(int argc, char **argv)
 			printf("%s", gnl_return);
 		}
 	}
-	free(gnl_return);
+//	free(gnl_return);
 	return (0);
 }
