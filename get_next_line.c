@@ -6,28 +6,36 @@
 /*   By: buehara <buehara@student.42sp.org.br>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:13:19 by buehara           #+#    #+#             */
-/*   Updated: 2025/08/13 20:32:20 by buehara          ###   ########.fr       */
+/*   Updated: 2025/08/15 17:17:11 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-t_link	*ft_get_newlist(t_link *head, t_link *prev)
+#include <stdio.h>
+
+t_link	*ft_get_lstnew(t_link **head, t_link *prev)
 {
 	int	ctrl;
 
-	head = (t_link *)malloc(sizeof(t_link) * 1);
-	if (!head)
+	*head = (t_link *)malloc(sizeof(t_link) * 1);
+	if (!*head)
 		return (NULL);
-	head->content = (char *)malloc(sizeof(char *) * BUFFER_SIZE + 1);
-	if (!head->content)
+	(*head)->content = (char *)malloc(sizeof(char *) * BUFFER_SIZE + 1);
+	if (!(*head)->content)
+	{
+		free(*head);
 		return (NULL);
+	}
 	ctrl = 0;
 	while (BUFFER_SIZE >= ctrl)
-		head->content[ctrl++] = '\0';
-	head->prev = prev;
-	head->next = NULL;
-	return (head);
+	{
+		(*head)->content[ctrl] = '\0';
+		ctrl++;
+	}
+	(*head)->prev = prev;
+	(*head)->next = NULL;
+	return (*head);
 }
 
 void	ft_get_free(t_link *head)
@@ -37,55 +45,128 @@ void	ft_get_free(t_link *head)
 	temp = head;
 	while (head != NULL)
 	{
-		temp = head->next;
+		temp = head->prev;
 		free(head->content);
 		free(head);
 		head = temp;
 	}
 }
 		
-void	*ft_get_filllist(t_link *head, int fd, unsigned int *read_size)
+void	*ft_get_lstfill(t_link *head, int fd, unsigned int *read_size)
 {
-	t_link	*temp;
+	t_link	*prev;
 
-	temp = NULL;
+	prev = NULL;
 	while (fd >= 0)
 	{
-		head = ft_get_newlist(head, temp);
+		head = ft_get_lstnew(&head, prev);
 		if (!head)
 		{
 			ft_get_free(head);
 			return (NULL);
 		}
-		temp = head;
-		head = head->next;
-		(*read_size) = read(fd, head->content, BUFFER_SIZE);
+		prev = head;
+		*read_size = read(fd, head->content, BUFFER_SIZE);
 		if (*read_size < BUFFER_SIZE)
 			break ;
+		head = head->next;
 	}
-	while (head->prev != NULL)
+	while (head && head->prev != NULL)
 		head = head->prev;
 	return (head);
 }
 
+int	ft_get_enter(t_link *list)
+{
+//	char 	*str;
+	int		size;
+	char	*p;
+	int		ctrl;
+
+	p = list->content;
+	size = 0;
+	ctrl = 0;
+	while (p && p[ctrl] != '\0' && p[ctrl] != '\n')
+	{
+		size++;
+		ctrl++;
+		if (p[ctrl] == '\0')
+		{
+			list = list->next;
+			p = list->content;
+			ctrl = 0;
+		}
+	}
+	return (size);
+/*	str = (char *)malloc(sizeof(char *) * size + 1);
+	if (!str)
+		return (NULL);
+	while (list && list->prev != NULL)
+		list = list->prev;
+	p = list->content;
+	ctrl = 0;
+	while (p && size > 0)
+	{
+		str[ctrl] = p[ctrl];
+		ctrl++;
+		size--;
+		if (p[ctrl] == '\0')
+		{
+			list = list->next;
+			p = list->content;
+			ctrl = 0;
+		}
+	}
+	return (str);*/
+}
+
+char	*ft_get_str(t_link *list, int size)
+{
+	char	*p;
+	char	*str_return;
+	int		ctrl;
+
+	str_return = (char *)malloc(sizeof(char *) * size + 1);
+	if (!str_return)
+		return (NULL);
+	p = list->content;
+	ctrl = 0;
+	while (p && size > 0)
+	{
+		*str_return = p[ctrl];
+		ctrl++;
+		str_return++;
+		size--;
+		if (p[ctrl] == '\0')
+		{
+			list = list->next;
+			ft_get_free(list->prev);
+			p = list->content;
+			ctrl = 0;
+		}
+	}
+	str_return[ctrl] = '\0';
+	return (str_return);
+}
+	
+	
+
 char	*get_next_line(int fd)
 {
-	t_link	*buffer;
-	unsigned int		read_size;
-	static unsigned int	index;
-	//char	*check;
+	static t_link	*buffer;
+	unsigned int	read_size;
+	char			*str_return;
+	int				len;
 
-	index = 0;
 	buffer = NULL;
 	read_size = 0;
-	buffer = ft_get_filllist(buffer, fd, &read_size);
+	buffer = ft_get_lstfill(buffer, fd, &read_size);
 	if (!buffer)
 		return (NULL);
-	//buffer = ft_get_newlist(buffer);
-	//buffer = (t_link *)malloc(sizeof(t_link *) * BUFFER_SIZE + 1);
-	//read_size = read(fd, buffer->content, BUFFER_SIZE);
-	//buffer->content[BUFFER_SIZE] = '\0';
-	return (buffer->content);
+	len = ft_get_enter(buffer);
+	str_return = ft_get_str(buffer, len);
+	return (str_return);
+//	return (buffer->content);
 }
 
 #include <stdio.h>
@@ -120,5 +201,6 @@ int	main(int argc, char **argv)
 			printf("%s", gnl_return);
 		}
 	}
+	free(gnl_return);
 	return (0);
 }
