@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   gnl.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: buehara <buehara@student.42sp.org.br>      +#+  +:+       +#+        */
+/*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 15:50:04 by buehara           #+#    #+#             */
-/*   Updated: 2025/08/25 20:15:39 by buehara          ###   ########.fr       */
+/*   Updated: 2025/08/28 19:47:10 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,20 +42,27 @@ t_link	*ft_new_node(t_link *prev)
 void	ft_get_clean(t_link *buffer)
 {
 	t_link	*temp;
+	t_link	*next;
 
 	if (!buffer)
 		return ;
 	temp = NULL;
+	if (buffer->next)
+		next = buffer->next;
 	while (buffer != NULL)
 	{
 		if (buffer->prev != NULL)
+		{
 			temp = buffer->prev;
+		}
 		free(buffer->content);
 		free(buffer);
 		if (temp == buffer || temp == NULL)
 			break ;
 		buffer = temp;
 	}
+	if (next)
+		next->prev = NULL;
 }
 
 void	ft_read(int fd, t_link **buffer)
@@ -136,32 +143,44 @@ int		ft_get_count(t_link *buffer)
 	return (ctrl);
 }
 
-t_link	ft_realloc(t_link *buffer)
+char	*ft_new_str(char *s)
 {
-	int		ctrl;
+	char	*temp;
+	char	*new_content;
 	int		index;
-	char	*p;
 
-	ctrl = 0;
-	p = buffer->content;
-	while (buffer && p[ctrl] != '\n' && p[ctrl] != '\0')
-		ctrl++;
-	if (p[ctrl] == '\0')
+	temp = s;
+	new_content = malloc(sizeof(char) * BUFFER_SIZE);
+	if (!new_content)
+		return (NULL);
+	index = 0;
+	while (temp && temp[index] != '\0')
+	{
+		new_content[index] = temp[index];
+		index++;
+	}
+	new_content[index] = '\0';
+	return (new_content);
+}
+
+t_link	*ft_realloc(t_link *buffer)
+{
+	char	*temp;
+	char	*new_str;
+
+	temp = buffer->content;
+	while (temp && *temp != '\n' && *temp != '\0')
+		temp++;
+	if (*temp == '\0')
 	{
 		buffer = buffer->next;
 		ft_get_clean(buffer->prev);
-		return ;
+		return (buffer);
 	}
-	index = 0;
-	ctrl++;
-	while (p && p[ctrl] != '\n' && p[ctrl] != '\0')
-	{
-		p[index] = p[ctrl];
-		ctrl++;
-	}
-	p[index] = '\0';
-	if (index == 0)
-		buffer = buffer->next;
+	temp++;
+	new_str = ft_new_str(temp);
+	free(buffer->content);
+	buffer->content = new_str;
 	return (buffer);
 }
 
@@ -177,8 +196,6 @@ char	*get_next_line(int fd)
 		ft_read(fd, &buffer);
 	if (!buffer)
 		return (NULL);
-//	while (buffer->prev != NULL)
-//		buffer = buffer->prev;
 	head = buffer;
 	ctrl = ft_get_count(buffer);
 	temp = malloc(sizeof(char) * ctrl + 1);
@@ -191,7 +208,8 @@ char	*get_next_line(int fd)
 	}
 	buffer = ft_get_enter(head, temp);
 	buffer = ft_realloc(buffer);
-	ft_get_clean(buffer->prev);
+	if (buffer->prev)
+		ft_get_clean(buffer->prev);
 	return (temp);
 }
 
