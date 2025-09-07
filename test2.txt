@@ -1,3 +1,4 @@
-Linha 1 END
-Linha 2 END
+Linha 1 - proxima linha vazia - END
+
+Linha 2 - linha anterior vazia - END
 Linha 3 EOF
