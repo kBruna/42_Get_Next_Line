@@ -6,7 +6,7 @@
 /*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 11:38:49 by buehara           #+#    #+#             */
-/*   Updated: 2025/09/06 20:53:07 by buehara          ###   ########.fr       */
+/*   Updated: 2025/09/12 20:40:41 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,15 @@ typedef struct s_link
 	struct s_link	*next;
 }				t_link;
 
-int		ft_gnl_strlen(t_link *node, int *size);
+// int	ft_gnl_strlen(char *content, int *ctrl, int *len);
 
 char	*get_next_line(int fd);
-char	*ft_gnl(int fd, t_link *prev, t_link **node, int *error);
-char	*ft_realloc(t_link **node);
-char	*ft_gnl_strcpy(t_link *node, int size);
+char	*ft_gnl_strlcpy(t_link *node, int len);
+char	*ft_rest(char *rest, int fd, t_link *node, int *find);
+char	*ft_gnl_realloc(char *content);
 
-void	ft_free(t_link **buffer);
+void	ft_free(t_link **buffer, char **rest);
 
-t_link	*ft_node(int fd, t_link **prev, int *find, int *error);
-t_link	*ft_new_node(t_link *prev, char *content);
+t_link	*ft_new_node(char *content, t_link *prev);
 
 #endif

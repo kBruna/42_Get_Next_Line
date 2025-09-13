@@ -5,117 +5,143 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/06 18:08:51 by buehara           #+#    #+#             */
-/*   Updated: 2025/09/06 19:14:23 by buehara          ###   ########.fr       */
+/*   Created: 2025/09/12 18:09:42 by buehara           #+#    #+#             */
+/*   Updated: 2025/09/12 20:44:52 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-t_link	*ft_new_node(t_link *prev, char *content)
+void	ft_free(t_link **buffer, char **rest)
 {
 	t_link	*node;
+
+	if (*rest && *rest[0] == '\0')
+	{
+		free(*rest);
+		*rest = NULL;
+	}
+	if (*buffer)
+	{
+		if ((*buffer)->next)
+			while ((*buffer)->next != NULL)
+				*buffer = (*buffer)->next;
+		node = *buffer;
+		*buffer = (*buffer)->prev;
+		while (node != NULL)
+		{
+			if (node->content)
+				free(node->content);
+			free(node);
+			if (!*buffer)
+				return ;
+			node = *buffer;
+			*buffer = (*buffer)->prev;
+		}
+	}
+}
+
+char	*ft_gnl_strlcpy(t_link *node, int len)
+{
+	char	*temp;
+	char	*line;
+	int		new_len;
+	int		ctrl;
+
+	new_len = 0;
+	ctrl = 0;
+	line = malloc(sizeof(char) * len + 2);
+	if (!line)
+		return (NULL);
+	temp = node->content;
+	while (temp && temp[ctrl] != '\0' && new_len < len)
+	{
+		line[new_len] = temp[ctrl];
+		new_len++;
+		ctrl++;
+		if (temp[ctrl] == '\0' && node->next)
+		{
+			node = node->next;
+			temp = node->content;
+			ctrl = 0;
+		}
+	}
+	line[new_len] = '\0';
+	return (line);
+}
+
+char	*ft_rest(char *rest, int fd, t_link *node, int *find)
+{
+	int	size_read;
+
+	if (!rest)
+	{
+		rest = malloc(sizeof(char) * BUFFER_SIZE + 2);
+		if (!rest)
+			return (NULL);
+		size_read = read(fd, rest, BUFFER_SIZE);
+		if (size_read <= 0 && node == NULL)
+		{
+			free(rest);
+			rest = NULL;
+			return (NULL);
+		}
+		if (size_read < BUFFER_SIZE)
+			*find = 1;
+		rest[size_read] = '\0';
+	}
+	return (rest);
+}
+
+t_link	*ft_new_node(char *content, t_link *prev)
+{
+	t_link	*node;
+	int		ctrl;
 
 	node = malloc(sizeof(t_link));
 	if (!node)
 		return (NULL);
-	node->content = content;
+	node->content = malloc(sizeof(char) * BUFFER_SIZE + 2);
+	if (!node->content)
+		return (NULL);
+	ctrl = 0;
+	while (content && content[ctrl] != '\0')
+	{
+		node->content[ctrl] = content[ctrl];
+		ctrl++;
+	}
+	node->content[ctrl] = '\0';
 	node->prev = prev;
 	node->next = NULL;
+	if (prev)
+		prev->next = node;
 	return (node);
 }
 
-int	ft_gnl_strlen(t_link *node, int *size)
+char	*ft_gnl_realloc(char *content)
 {
-	char	*cpy;
-	int		find;
-	int		index;
-
-	cpy = node->content;
-	find = 0;
-	index = 0;
-	while (cpy && cpy[index] != '\n' && cpy[index] != '\0')
-	{
-		(*size)++;
-		index++;
-	}
-	if (cpy[index] == '\n')
-	{
-		(*size)++;
-		find = 1;
-	}
-	return (find);
-}
-
-char	*ft_gnl_strcpy(t_link *node, int size)
-{
-	char	*org;
-	char	*cpy;
+	char	*rest;
 	int		ctrl;
-	int		index;
+	int		new_len;
 
-	while (node->prev != NULL)
-		node = node->prev;
-	org = node->content;
 	ctrl = 0;
-	index = 0;
-	cpy = malloc(sizeof(char) * size + 1);
-	while (org && org[ctrl] != '\0' && index < size)
-	{
-		cpy[index] = org[ctrl];
+	rest = NULL;
+	while (content && content[ctrl] != '\n' && content[ctrl] != '\0')
 		ctrl++;
-		index++;
-		if (node->next && org[ctrl] == '\0')
+	if (content && content[ctrl] == '\n')
+	{
+		ctrl++;
+		rest = malloc(sizeof(char) * BUFFER_SIZE + 2);
+		if (!rest)
+			return (NULL);
+		new_len = 0;
+		while (content && content[ctrl] != '\0')
 		{
-			node = node->next;
-			org = node->content;
-			ctrl = 0;
+			rest[new_len] = content[ctrl];
+			new_len++;
+			ctrl++;
 		}
+		rest[new_len] = '\0';
 	}
-	cpy[index] = '\0';
-	return (cpy);
-}
-
-void	ft_free(t_link **buffer)
-{
-	t_link	*node;
-
-	node = *buffer;
-	*buffer = (*buffer)->prev;
-	while (node != NULL)
-	{
-		free(node->content);
-		free(node);
-		if (!*buffer)
-			return ;
-		node = *buffer;
-		*buffer = (*buffer)->prev;
-	}
-}
-
-char	*ft_realloc(t_link **node)
-{
-	char	*temp;
-	char	*cpy;
-	int		ctrl;
-	int		index;
-
-	ctrl = 0;
-	temp = (*node)->content;
-	while (temp && temp[ctrl] != '\n' && temp[ctrl] != '\0')
-		ctrl++;
-	if (temp[ctrl] == '\n')
-		ctrl++;
-	if (temp[ctrl] == '\0')
-		return (NULL);
-	cpy = malloc(sizeof(char) * BUFFER_SIZE + 2);
-	index = 0;
-	while (temp && temp[ctrl] != '\0')
-	{
-		cpy[index] = temp[ctrl];
-		ctrl++;
-		index++;
-	}
-	cpy[index] = '\0';
-	return (cpy);
+	return (rest);
 }

@@ -5,122 +5,118 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/01 14:15:56 by buehara           #+#    #+#             */
-/*   Updated: 2025/09/06 21:04:35 by buehara          ###   ########.fr       */
+/*   Created: 2025/09/08 15:06:18 by buehara           #+#    #+#             */
+/*   Updated: 2025/09/12 21:01:08 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-t_link	*ft_node(int fd, t_link **prev, int *find, int *error)
+t_link	*ft_fill_nodes(int fd, char **tail)
 {
 	t_link	*node;
-	int		size_read;
-	char	*content;
-
-	content = malloc(sizeof(char) * BUFFER_SIZE + 2);
-	if (!content)
-		return (NULL);
-	size_read = read(fd, content, BUFFER_SIZE);
-	if (size_read < 0)
-		*error = 1;
-	if (size_read <= 0)
-	{
-		free(content);
-		return (NULL);
-	}
-	if (size_read < BUFFER_SIZE)
-		*find = 1;
-	content[size_read] = '\0';
-	node = ft_new_node(*prev, content);
-	if (*prev)
-		(*prev)->next = node;
-	*prev = node;
-	return (node);
-}
-
-char	*ft_gnl(int fd, t_link *prev, t_link **node, int *error)
-{
-	char	*line;
+	t_link	*prev;
+	int		len;
 	int		find;
-	int		size;
+	int		ctrl;
 
-	line = NULL;
-	size = 0;
+	len = 0;
 	find = 0;
-	if (*node)
+	prev = NULL;
+	while (!find)
 	{
-		find += ft_gnl_strlen(*node, &size);
-		if (find)
-			line = ft_gnl_strcpy(*node, size);
-		prev = *node;
-	}
-	while (!line)
-	{
-		if (!line)
-			*node = ft_node(fd, &prev, &find, error);
-		if (!(*node) && prev)
-		{
-			find = 1;
-			free(*node);
-			*node = prev;
-			(*node)->next = NULL;
-		}
-		else if (!(*node))
+		tail = ft_rest(tail, fd, node, &find);
+		if (!tail)
 			return (NULL);
-		find += ft_gnl_strlen(*node, &size);
-		if (find)
-			line = ft_gnl_strcpy(*node, size);
+		node = ft_new_node(tail, prev);
+		free(*tail);
+		*tail = NULL;
+		prev = node;
+		ctrl = 0;
+		while (node->content && node->content[ctrl] != '\n' && node->content[ctrl] != '\0')
+		{
+			ctrl++;
+			len++;
+		}
+		if (node->content && node->content[ctrl] == '\n')
+			find = 1;
 	}
-	return (line);
+	return (node);
 }
 
 char	*get_next_line(int fd)
 {
+	static char	*tail;
+	char		*line;
+	// char		*temp;
+	// int			find;
+	// int			ctrl;
+	// int			len;
 	t_link		*node;
 	t_link		*prev;
-	char		*line;
-	static char	*rest;
-	int			error;
 
-	error = 0;
-	if (fd < 0 || BUFFER_SIZE == 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	prev = NULL;
-	node = NULL;
-	if (rest)
-		node = ft_new_node(NULL, rest);
-	line = ft_gnl(fd, prev, &node, &error);
-	if (!line || error)
-		return (NULL);
-	rest = ft_realloc(&node);
-	if (node)
-		ft_free(&node);
+	ft_fill_nodes(fd, &tail);
+	// find = 0;
+	// len = 0;
+	// prev = NULL;
+	// node = NULL;
+	// while (!find)
+	// {
+	// 	tail = ft_rest(tail, fd, node, &find);
+	// 	if (!tail)
+	// 		return (NULL);
+	// 	node = ft_new_node(tail, prev);
+	// 	free(tail);
+	// 	tail = NULL;
+	// 	prev = node;
+	// 	ctrl = 0;
+	// 	temp = node->content;
+	// 	while (temp && temp[ctrl] != '\n' && temp[ctrl] != '\0')
+	// 	{
+	// 		ctrl++;
+	// 		len++;
+	// 	}
+	// 	if (temp && (temp[ctrl] == '\n' || find))
+	// 	{
+	// 		len++;
+	// 		if (node->prev)
+	// 			while (node->prev != NULL)
+	// 				node = node->prev;
+	// 		find = 1;
+	// 		line = ft_gnl_strlcpy(node, len);
+	// 		tail = ft_gnl_realloc(temp);
+	// 	}
+	// }
+	// ft_free(&node, &tail);
 	return (line);
 }
 
-// #include <fcntl.h>
+// #include <unistd.h>
 // #include <stdio.h>
+// #include <fcntl.h>
 // int	main(int argc, char **argv)
 // {
 // 	int		fd;
 // 	int		count;
-// 	char	*line;
+// 	char	*gnl;
 
+// 	count = 1;
 // 	if (argc > 1)
 // 	{
 // 		fd = open(argv[1], O_RDONLY);
-// 		if (!argv[2])
-// 			count = 1;
-// 		else
+// 		if (argv[2])
 // 			count = atoi(argv[2]);
-// 		while (count > 0)
+// 		while (count)
 // 		{
-// 			line = get_next_line(fd);
-// 			printf("%s", line);
-// 			free(line);
+// 			gnl = get_next_line(fd);
+// 			printf("%s", gnl);
+// 			if (gnl)
+// 				free(gnl);
 // 			count--;
 // 		}
+// 		close(fd);
 // 	}
 // 	return (0);
 // }
