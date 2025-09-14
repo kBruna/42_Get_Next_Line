@@ -50,7 +50,7 @@ char	*ft_gnl_strlcpy(t_link *node, int len)
 
 	new_len = 0;
 	ctrl = 0;
-	line = malloc(sizeof(char) * len + 2);
+	line = malloc(sizeof(char) * len + 1);
 	if (!line)
 		return (NULL);
 	temp = node->content;
@@ -76,7 +76,7 @@ char	*ft_rest(char *rest, int fd, t_link *node, int *find)
 
 	if (!rest)
 	{
-		rest = malloc(sizeof(char) * BUFFER_SIZE + 2);
+		rest = malloc(sizeof(char) * BUFFER_SIZE + 1);
 		if (!rest)
 			return (NULL);
 		size_read = read(fd, rest, BUFFER_SIZE);
@@ -88,12 +88,13 @@ char	*ft_rest(char *rest, int fd, t_link *node, int *find)
 		}
 		if (size_read < BUFFER_SIZE)
 			*find = 1;
-		rest[size_read] = '\0';
+        if (size_read >= 0)
+    		rest[size_read] = '\0';
 	}
 	return (rest);
 }
 
-t_link	*ft_new_node(char *content, t_link *prev)
+t_link	*ft_new_node(char *str, t_link *prev)
 {
 	t_link	*node;
 	int		ctrl;
@@ -101,13 +102,13 @@ t_link	*ft_new_node(char *content, t_link *prev)
 	node = malloc(sizeof(t_link));
 	if (!node)
 		return (NULL);
-	node->content = malloc(sizeof(char) * BUFFER_SIZE + 2);
+	node->content = malloc(sizeof(char) * BUFFER_SIZE + 1);
 	if (!node->content)
 		return (NULL);
 	ctrl = 0;
-	while (content && content[ctrl] != '\0')
+	while (str && str[ctrl] != '\0')
 	{
-		node->content[ctrl] = content[ctrl];
+		node->content[ctrl] = str[ctrl];
 		ctrl++;
 	}
 	node->content[ctrl] = '\0';

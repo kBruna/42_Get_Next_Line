@@ -36,6 +36,6 @@ char	*ft_gnl_realloc(char *content);
 
 void	ft_free(t_link **buffer, char **rest);
 
-t_link	*ft_new_node(char *content, t_link *prev);
+t_link	*ft_new_node(char *str, t_link *prev);
 
 #endif

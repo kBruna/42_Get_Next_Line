@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-
+/*
 t_link	*ft_fill_nodes(int fd, char **tail)
 {
 	t_link	*node;
@@ -64,20 +64,19 @@ int ft_gnl_strlen(t_link **buffer)
     }
     len++;
     return (len);
-}
+}*/
 
 char	*get_next_line(int fd)
 {
 	static char	*tail;
 	char		*line;
-	// char		*temp;
-	// int			find;
-	// int			ctrl;
-	// int			len;
+	char		*temp;
+	int			find;
+	int			ctrl;
 	t_link		*node;
-//	t_link		*prev;
+	t_link		*prev;
     int         len;
-
+/*
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	node = ft_fill_nodes(fd, &tail);
@@ -92,42 +91,43 @@ char	*get_next_line(int fd)
         while (node->next != NULL)
             node = node->next;
     tail = ft_gnl_realloc(node->content);
-    ft_free(&node, &tail);
-	// find = 0;
-	// len = 0;
-	// prev = NULL;
-	// node = NULL;
-	// while (!find)
-	// {
-	// 	tail = ft_rest(tail, fd, node, &find);
-	// 	if (!tail)
-	// 		return (NULL);
-	// 	node = ft_new_node(tail, prev);
-	// 	free(tail);
-	// 	tail = NULL;
-	// 	prev = node;
-	// 	ctrl = 0;
-	// 	temp = node->content;
-	// 	while (temp && temp[ctrl] != '\n' && temp[ctrl] != '\0')
-	// 	{
-	// 		ctrl++;
-	// 		len++;
-	// 	}
-	// 	if (temp && (temp[ctrl] == '\n' || find))
-	// 	{
-	// 		len++;
-	// 		if (node->prev)
-	// 			while (node->prev != NULL)
-	// 				node = node->prev;
-	// 		find = 1;
-	// 		line = ft_gnl_strlcpy(node, len);
-	// 		tail = ft_gnl_realloc(temp);
-	// 	}
-	// }
-	// ft_free(&node, &tail);
+    ft_free(&node, &tail); */
+	find = 0;
+	len = 0;
+	prev = NULL;
+	node = NULL;
+	while (!find)
+	{
+	    tail = ft_rest(tail, fd, node, &find);
+		if (!tail)
+			return (NULL);
+		node = ft_new_node(tail, prev);
+	 	free(tail);
+		tail = NULL;
+		prev = node;
+		ctrl = 0;
+		temp = node->content;
+		while (temp && temp[ctrl] != '\n' && temp[ctrl] != '\0')
+		{
+			ctrl++;
+			len++;
+		}
+		if (temp && (temp[ctrl] == '\n' || find))
+		{
+			len++;
+			if (node->prev)
+				while (node->prev != NULL)
+					node = node->prev;
+			find = 1;
+			line = ft_gnl_strlcpy(node, len);
+			tail = ft_gnl_realloc(temp);
+		}
+	}
+	ft_free(&node, &tail);
 	return (line);
 }
 
+/*
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -154,4 +154,4 @@ int	main(int argc, char **argv)
  		close(fd);
  	}
  	return (0);
-}
+}*/
