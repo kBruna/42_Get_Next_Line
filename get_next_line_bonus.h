@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 11:38:49 by buehara           #+#    #+#             */
-/*   Updated: 2025/09/15 14:57:19 by buehara          ###   ########.fr       */
+/*   Created: 2025/09/15 14:57:10 by buehara           #+#    #+#             */
+/*   Updated: 2025/09/15 18:11:20 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
 # include <stdlib.h>
 # include <unistd.h>
@@ -34,7 +34,7 @@ char	*ft_gnl_strlcpy(t_link *node, int len);
 char	*ft_rest(char *rest, int fd, t_link *node, int *find);
 char	*ft_gnl_realloc(char *content);
 
-void	ft_free(t_link **buffer, char **rest);
+void	ft_free(t_link **buffer, char *rest[]);
 
 t_link	*ft_new_node(char *str, t_link *prev);
 t_link	*ft_fill_nodes(int fd, char **tail);
