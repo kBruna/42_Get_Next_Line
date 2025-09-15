@@ -6,7 +6,7 @@
 /*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 18:09:42 by buehara           #+#    #+#             */
-/*   Updated: 2025/09/12 20:44:52 by buehara          ###   ########.fr       */
+/*   Updated: 2025/09/15 14:41:02 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ char	*ft_rest(char *rest, int fd, t_link *node, int *find)
 		if (!rest)
 			return (NULL);
 		size_read = read(fd, rest, BUFFER_SIZE);
-		if (size_read <= 0 && node == NULL)
+		if (size_read <= 0 && !node)
 		{
 			free(rest);
 			rest = NULL;
@@ -88,8 +88,8 @@ char	*ft_rest(char *rest, int fd, t_link *node, int *find)
 		}
 		if (size_read < BUFFER_SIZE)
 			*find = 1;
-        if (size_read >= 0)
-    		rest[size_read] = '\0';
+		if (size_read >= 0)
+			rest[size_read] = '\0';
 	}
 	return (rest);
 }
