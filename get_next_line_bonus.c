@@ -6,7 +6,7 @@
 /*   By: buehara <buehara@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:06:18 by buehara           #+#    #+#             */
-/*   Updated: 2025/09/15 18:11:34 by buehara          ###   ########.fr       */
+/*   Updated: 2025/09/16 13:39:44 by buehara          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,9 @@ int	ft_gnl_strlen(t_link **buffer)
 char	*get_next_line(int fd)
 {
 	static char		*tail[1024];
-	char		*line;
-	t_link		*node;
-	int			len;
+	t_link			*node;
+	char			*line;
+	int				len;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
